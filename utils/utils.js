@@ -36,13 +36,13 @@ const uploadImage = (image, imagePath, id) => {
   const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
     const buffer = Buffer.from(base64Data, 'base64');
     const imageType = getFileTypeFromBase64(image)
-    console.log("ss")
-    const filePath = path.join(
-      __dirname,
-      imagePath,
-      id + imageType
-    );
-    console.log("ss11", filePath)
+    // const filePath = path.join(
+    //   __dirname,
+    //   imagePath,
+    //   id + imageType
+    // );
+    const filePath = path.resolve(__dirname, imagePath, id + imageType);
+    console.log("filePath", filePath)
 
     fs.writeFile(filePath, buffer, (err) => {
       if (err) {
