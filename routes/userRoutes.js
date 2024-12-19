@@ -9,7 +9,9 @@ const {
   publicUser,
   sendVerificationCode,
   verifyCode,
-  resetUserPassword
+  resetUserPassword,
+  updateBio,
+  updateProfileImage
 } = require("../controllers/userController");
 const validateToken = require("../middleware/validateTokenHandler");
 
@@ -20,6 +22,8 @@ router.post("/login", loginUser);
 router.get("/profiles/:profileLink", publicUser);
 router.get("/current", validateToken, currentUser);
 router.put("/update-password", validateToken, updateUserPassword);
+router.put("/update-bio", validateToken, updateBio);
+router.put("/update-profile-image", validateToken, updateProfileImage);
 router.put("/onboarding", validateToken, profileOnboarding);
 router.put("/profile-link", validateToken, updateProfileLink);
 router.post("/send-verification-code", sendVerificationCode);

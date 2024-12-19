@@ -127,18 +127,27 @@ const updateProfileLink = asyncHandler(async (req, res, next) => {
     return next(new Error('All fields are mandatory!'));
   }
 
+  const existingUser = await User.findOne({ profileLink });
+
+  if (existingUser && existingUser._id.toString() !== req.user._id.toString()) {
+    res.status(400);
+    return next(new Error('Profile link is already in use by another user!'));
+  }
+
   const updatedUser = await User.findByIdAndUpdate(
     req.user._id,
-    {
-      profileLink,
-    },
-    {
-      new: true,
-    }
+    { profileLink },
+    { new: true }
   );
+
+  if (!updatedUser) {
+    res.status(404);
+    return next(new Error('User not found'));
+  }
 
   return res.status(200).send(updatedUser);
 });
+
 
 const currentUser = asyncHandler(async (req, res) => {
   const user = await User.findOne({ _id: req.user._id });
@@ -273,6 +282,54 @@ const resetUserPassword = asyncHandler(async (req, res, next) => {
   return res.json({ message: 'Password reset successfully', result: true });
 });
 
+const updateBio = asyncHandler(async (req, res, next) => {
+  const { bio } = req.body;
+
+  if (!bio) {
+    res.status(400);
+    return next(new Error('All fields are mandatory!'));
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      bio,
+    },
+    {
+      new: true,
+    }
+  );
+
+  return res.status(200).send(updatedUser);
+});
+
+const updateProfileImage = asyncHandler(async (req, res, next) => {
+  const { image } = req.body;
+
+  if (!image) {
+    res.status(400);
+    return next(new Error('All fields are mandatory!'));
+  }
+
+  let updatedProfileImage = req.body.image;
+  const imageIconId = uuidv4();
+  const imageType = getFileTypeFromBase64(updatedProfileImage);
+  uploadImage(updatedProfileImage, '../public/profiles', imageIconId);
+  updatedProfileImage = imageIconId + imageType;
+
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      profileImage: updatedProfileImage,
+    },
+    {
+      new: true,
+    }
+  );
+
+  return res.status(200).send(updatedUser);
+});
+
 module.exports = {
   registerUser,
   loginUser,
@@ -284,4 +341,6 @@ module.exports = {
   sendVerificationCode,
   verifyCode,
   resetUserPassword,
+  updateBio,
+  updateProfileImage
 };
