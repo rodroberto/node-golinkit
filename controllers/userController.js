@@ -330,6 +330,33 @@ const updateProfileImage = asyncHandler(async (req, res, next) => {
   return res.status(200).send(updatedUser);
 });
 
+const updateBackgroundImage = asyncHandler(async (req, res, next) => {
+  const { image } = req.body;
+
+  if (!image) {
+    res.status(400);
+    return next(new Error('All fields are mandatory!'));
+  }
+
+  let updatedBackgrundImage = req.body.image;
+  const imageIconId = uuidv4();
+  const imageType = getFileTypeFromBase64(updatedBackgrundImage);
+  uploadImage(updatedBackgrundImage, '../public/backgrounds', imageIconId);
+  updatedBackgrundImage = imageIconId + imageType;
+
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      backgroundImage: updatedBackgrundImage,
+    },
+    {
+      new: true,
+    }
+  );
+
+  return res.status(200).send(updatedUser);
+});
+
 module.exports = {
   registerUser,
   loginUser,
@@ -342,5 +369,6 @@ module.exports = {
   verifyCode,
   resetUserPassword,
   updateBio,
-  updateProfileImage
+  updateProfileImage,
+  updateBackgroundImage
 };

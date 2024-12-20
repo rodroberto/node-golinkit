@@ -11,7 +11,8 @@ const {
   verifyCode,
   resetUserPassword,
   updateBio,
-  updateProfileImage
+  updateProfileImage,
+  updateBackgroundImage
 } = require("../controllers/userController");
 const validateToken = require("../middleware/validateTokenHandler");
 
@@ -24,6 +25,7 @@ router.get("/current", validateToken, currentUser);
 router.put("/update-password", validateToken, updateUserPassword);
 router.put("/update-bio", validateToken, updateBio);
 router.put("/update-profile-image", validateToken, updateProfileImage);
+router.put("/update-background-image", validateToken, updateBackgroundImage);
 router.put("/onboarding", validateToken, profileOnboarding);
 router.put("/profile-link", validateToken, updateProfileLink);
 router.post("/send-verification-code", sendVerificationCode);
