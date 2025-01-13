@@ -29,9 +29,15 @@ const deleteStats = asyncHandler(async (req, res) => {
   }
 });
 
+const getAllStats = asyncHandler(async (req, res) => {
+  const stats = await Stat.find();
+  res.status(200).json(stats);
+});
+
 
 module.exports = {
   getStats,
   createStat,
   deleteStats,
+  getAllStats
 };

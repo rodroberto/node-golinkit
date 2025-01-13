@@ -50,7 +50,6 @@ const createLink = asyncHandler(async (req, res) => {
 });
 
 const updateLink = asyncHandler(async (req, res) => {
-  console.log('dd');
   const link = await Link.findById(req.params.id);
   if (!link) {
     res.status(404);
@@ -98,10 +97,25 @@ const deleteLink = asyncHandler(async (req, res) => {
   res.status(200).json(link);
 });
 
+const getAllLinks = asyncHandler(async (req, res) => {
+  const links = await Link.aggregate([
+    {
+      $lookup: {
+        from: 'stats',
+        localField: '_id',
+        foreignField: 'linkId',
+        as: 'stats',
+      },
+    },
+  ]);
+  res.status(200).json(links);
+});
+
 module.exports = {
   getLinks,
   getPublicLinks,
   createLink,
   updateLink,
   deleteLink,
+  getAllLinks
 };

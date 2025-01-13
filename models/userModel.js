@@ -36,6 +36,13 @@ const userSchema = mongoose.Schema(
     isVerified: {
       type: Boolean,
     },
+    isVerifiedTier2: {
+      type: Boolean,
+    },
+    isAdmin: {
+      type: Boolean,
+      default: false
+    }
   },
   {
     timestamps: true,

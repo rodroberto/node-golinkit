@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const sgMail = require('@sendgrid/mail');
 const User = require('../models/userModel');
+const Link = require('../models/linkModel');
 const {
   getFileTypeFromBase64,
   uploadImage,
@@ -55,7 +56,7 @@ const loginUser = asyncHandler(async (req, res) => {
       },
       process.env.ACCESS_TOKEN_SECRET
     );
-    res.status(200).json({ accessToken });
+    res.status(200).json({ accessToken, isAdmin: user?.isAdmin });
   } else {
     res.status(401);
     throw new Error('email or password is not valid');
@@ -148,14 +149,12 @@ const updateProfileLink = asyncHandler(async (req, res, next) => {
   return res.status(200).send(updatedUser);
 });
 
-
 const currentUser = asyncHandler(async (req, res) => {
   const user = await User.findOne({ _id: req.user._id });
   res.json(user);
 });
 
 const publicUser = asyncHandler(async (req, res) => {
-  console.log('publicUser', req.params);
   const user = await User.findOne({ profileLink: req.params.profileLink });
   res.json(user);
 });
@@ -357,6 +356,61 @@ const updateBackgroundImage = asyncHandler(async (req, res, next) => {
   return res.status(200).send(updatedUser);
 });
 
+const getUsers = asyncHandler(async (req, res) => {
+  const user = await User.find();
+  res.json(user);
+});
+
+const searchUser = asyncHandler(async (req, res) => {
+  const user = await User.findOne({ username: req.params.username });
+  console.log("searchuser", user)
+  if (user) {
+    const links = await Link.aggregate([
+      {
+        $match: { userId: user._id },
+      },
+      {
+        $lookup: {
+          from: 'stats',
+          localField: '_id',
+          foreignField: 'linkId',
+          as: 'stats',
+        },
+      },
+    ]);
+    res.json({ user, links });
+  } else {
+    res.json({ user: null, links: null });
+  }
+});
+
+const deleteUser = asyncHandler(async (req, res) => {
+  await User.findByIdAndRemove(req.params.id);
+  res.json({result: true});
+});
+
+const updateVerified = asyncHandler(async (req, res, next) => {
+  const { userId, isVerified, isVerifiedTier2 } = req.body;
+
+  if (!userId) {
+    res.status(400);
+    return next(new Error('All fields are mandatory!'));
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    {
+      isVerified,
+      isVerifiedTier2
+    },
+    {
+      new: true,
+    }
+  );
+
+  return res.status(200).send(updatedUser);
+});
+
 module.exports = {
   registerUser,
   loginUser,
@@ -370,5 +424,9 @@ module.exports = {
   resetUserPassword,
   updateBio,
   updateProfileImage,
-  updateBackgroundImage
+  updateBackgroundImage,
+  getUsers,
+  searchUser,
+  deleteUser,
+  updateVerified
 };

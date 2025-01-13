@@ -12,7 +12,11 @@ const {
   resetUserPassword,
   updateBio,
   updateProfileImage,
-  updateBackgroundImage
+  updateBackgroundImage,
+  getUsers,
+  searchUser,
+  deleteUser,
+  updateVerified
 } = require("../controllers/userController");
 const validateToken = require("../middleware/validateTokenHandler");
 
@@ -31,5 +35,9 @@ router.put("/profile-link", validateToken, updateProfileLink);
 router.post("/send-verification-code", sendVerificationCode);
 router.post("/verify", verifyCode);
 router.post("/reset-password", resetUserPassword);
+router.get("/", validateToken, getUsers);
+router.get("/search/:username", validateToken, searchUser);
+router.delete('/:id', validateToken, deleteUser)
+router.put('/update-verified', validateToken, updateVerified)
 
 module.exports = router;

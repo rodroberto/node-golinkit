@@ -1,19 +1,23 @@
 const express = require("express");
 const {
-    getLinks,
-    getPublicLinks,
-    createLink,
-    updateLink,
-    deleteLink,
+  getLinks,
+  getPublicLinks,
+  createLink,
+  updateLink,
+  deleteLink,
+  getAllLinks,
 } = require("../controllers/linkController");
 const validateToken = require("../middleware/validateTokenHandler");
 
 const router = express.Router();
 
-router.get('/:profileLink', getPublicLinks)
-router.use(validateToken)
-router.route("/").get(getLinks).post(createLink);
-router.route("/:id").put(updateLink).delete(deleteLink);
 
+router.get('/all', validateToken, getAllLinks);
+router.get('/', validateToken, getLinks);
+router.get('/:profileLink', getPublicLinks);
+
+router.post('/', validateToken, createLink);
+router.put('/:id', validateToken, updateLink);
+router.delete('/:id', validateToken, updateLink);
 
 module.exports = router;
